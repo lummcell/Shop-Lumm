@@ -1,0 +1,3160 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LummXD Store</title>
+  <!-- Font Awesome 6 (Free) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    :root {
+      --bg-primary: #f5f7fb;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-filter: #ffffff;
+      --bg-input: #fafbfc;
+      --text-primary: #172033;
+      --text-secondary: #687386;
+      --text-muted: #8a94a6;
+      --border-color: #e7eaf0;
+      --border-light: #e1e5ec;
+      --shadow: 0 8px 25px rgba(30, 50, 90, .08);
+      --badge-bg: #edf3ff;
+      --badge-text: #246bfe;
+      --btn-primary: #246bfe;
+      --btn-primary-hover: #1557d6;
+      --btn-success: #16a366;
+      --btn-danger: #fee9e7;
+      --btn-danger-text: #b13e3e;
+      --modal-overlay: rgba(15, 23, 42, .65);
+      --online-color: #19a463;
+      --offline-color: #8b949e;
+      --request-pending: #f59e0b;
+      --request-accepted: #10b981;
+      --request-rejected: #ef4444;
+      --battery-high: #22c55e;
+      --battery-medium: #eab308;
+      --battery-low: #ef4444;
+    }
+
+    body.dark {
+      --bg-primary: #0d1117;
+      --bg-secondary: #161b22;
+      --bg-card: #1c2333;
+      --bg-filter: #1c2333;
+      --bg-input: #0d1117;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --text-muted: #6e7681;
+      --border-color: #30363d;
+      --border-light: #30363d;
+      --shadow: 0 8px 25px rgba(0, 0, 0, .4);
+      --badge-bg: #1f3a5f;
+      --badge-text: #58a6ff;
+      --btn-primary: #238636;
+      --btn-primary-hover: #2ea043;
+      --btn-success: #238636;
+      --btn-danger: #3d1a1a;
+      --btn-danger-text: #f85149;
+      --modal-overlay: rgba(0, 0, 0, .75);
+      --online-color: #3fb950;
+      --offline-color: #6e7681;
+      --request-pending: #d97706;
+      --request-accepted: #10b981;
+      --request-rejected: #ef4444;
+      --battery-high: #3fb950;
+      --battery-medium: #d97706;
+      --battery-low: #f85149;
+    }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      padding-bottom: 40px;
+      transition: background .3s, color .3s;
+    }
+
+    /* ===== STORAGE INDICATOR ===== */
+    .storage-indicator {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 8px 14px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      z-index: 40;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background .3s, border-color .3s, color .3s;
+    }
+    .storage-indicator .bar {
+      width: 60px;
+      height: 5px;
+      background: var(--border-light);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .storage-indicator .bar .fill {
+      height: 100%;
+      background: var(--btn-success);
+      border-radius: 3px;
+      transition: width .3s, background .3s;
+    }
+    .storage-indicator .bar .fill.warning {
+      background: #f59e0b;
+    }
+    .storage-indicator .bar .fill.danger {
+      background: #ef4444;
+    }
+    .storage-indicator .size-text {
+      font-weight: 600;
+      min-width: 45px;
+      text-align: right;
+    }
+
+    /* ===== BATTERY INDICATOR ===== */
+    .battery-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .battery-indicator .battery-icon {
+      position: relative;
+      width: 28px;
+      height: 14px;
+      border: 2px solid var(--text-secondary);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      padding: 1px;
+    }
+    .battery-indicator .battery-icon::after {
+      content: '';
+      position: absolute;
+      right: -5px;
+      top: 3px;
+      width: 3px;
+      height: 6px;
+      background: var(--text-secondary);
+      border-radius: 0 2px 2px 0;
+    }
+    .battery-indicator .battery-icon .fill {
+      height: 100%;
+      border-radius: 1px;
+      transition: width .5s, background .5s;
+      background: var(--battery-high);
+    }
+    .battery-indicator .battery-icon .fill.warning {
+      background: var(--battery-medium);
+    }
+    .battery-indicator .battery-icon .fill.danger {
+      background: var(--battery-low);
+    }
+    .battery-indicator .battery-text {
+      font-size: 11px;
+      min-width: 35px;
+    }
+    .battery-indicator .battery-text.low {
+      color: var(--battery-low);
+    }
+
+    /* ===== MUSIC BAR ===== */
+    .music-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      padding: 8px 20px;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: background .3s, border-color .3s;
+      flex-wrap: wrap;
+    }
+    .music-bar .now-playing {
+      font-size: 13px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 150px;
+    }
+    .music-bar .now-playing strong {
+      color: var(--text-primary);
+    }
+    .music-bar .controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .music-bar .controls button {
+      width: 34px;
+      height: 34px;
+      border: none;
+      border-radius: 50%;
+      background: var(--btn-primary);
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      transition: .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .music-bar .controls button:hover {
+      background: var(--btn-primary-hover);
+      transform: scale(1.05);
+    }
+    .music-bar .controls button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .music-bar .progress-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 120px;
+    }
+    .music-bar .progress-wrap input[type="range"] {
+      flex: 1;
+      height: 4px;
+      -webkit-appearance: none;
+      background: var(--border-light);
+      border-radius: 2px;
+      outline: none;
+    }
+    .music-bar .progress-wrap input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--btn-primary);
+      cursor: pointer;
+    }
+    .music-bar .progress-wrap .time {
+      font-size: 11px;
+      color: var(--text-muted);
+      min-width: 35px;
+    }
+    .music-bar .volume-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .music-bar .volume-wrap i {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .music-bar .volume-wrap input[type="range"] {
+      width: 60px;
+      height: 4px;
+      -webkit-appearance: none;
+      background: var(--border-light);
+      border-radius: 2px;
+      outline: none;
+    }
+    .music-bar .volume-wrap input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--btn-primary);
+      cursor: pointer;
+    }
+    .music-bar .admin-music-btn {
+      padding: 4px 12px;
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      background: var(--bg-filter);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 11px;
+      transition: .15s;
+    }
+    .music-bar .admin-music-btn:hover {
+      background: var(--btn-primary);
+      color: #fff;
+      border-color: var(--btn-primary);
+    }
+
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      transition: background .3s, border-color .3s;
+    }
+
+    .nav {
+      max-width: 1150px;
+      margin: auto;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 18px;
+    }
+
+    .logo {
+      font-size: 21px;
+      font-weight: 900;
+      white-space: nowrap;
+      color: var(--text-primary);
+      cursor: pointer;
+      user-select: none;
+      padding: 5px 10px;
+      border-radius: 8px;
+      transition: background .2s;
+      position: relative;
+    }
+    .logo:hover {
+      background: var(--bg-filter);
+    }
+    .logo span {
+      color: var(--btn-primary);
+    }
+    .logo .tap-indicator {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: var(--btn-primary);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 10px;
+      opacity: 0;
+      transition: opacity .2s;
+    }
+    .logo .tap-indicator.show {
+      opacity: 1;
+    }
+
+    .search {
+      flex: 1;
+      position: relative;
+    }
+    .search input {
+      width: 100%;
+      height: 43px;
+      border: 1px solid var(--border-light);
+      border-radius: 11px;
+      padding: 0 16px 0 43px;
+      outline: none;
+      background: var(--bg-input);
+      font-size: 14px;
+      color: var(--text-primary);
+      transition: background .3s, border-color .3s, color .3s;
+    }
+    .search input:focus {
+      border-color: var(--btn-primary);
+      background: var(--bg-secondary);
+    }
+    .search-icon {
+      position: absolute;
+      left: 15px;
+      top: 12px;
+      color: var(--text-muted);
+    }
+
+    .user-info-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .user-info-header i {
+      color: var(--btn-primary);
+    }
+    .user-info-header .btn-logout-user {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
+    .user-info-header .btn-logout-user:hover {
+      color: var(--btn-danger-text);
+    }
+
+    .shop {
+      max-width: 1150px;
+      margin: 25px auto 0;
+      padding: 0 18px;
+    }
+    .shop-box {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      transition: background .3s, border-color .3s;
+    }
+    .avatar {
+      width: 58px;
+      height: 58px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--btn-primary), #7c3aed);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 17px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .shop-info h1 {
+      font-size: 20px;
+      margin-bottom: 5px;
+      color: var(--text-primary);
+    }
+    .shop-info p {
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+    .online-status {
+      margin-left: auto;
+      font-size: 12px;
+      font-weight: bold;
+      padding: 4px 12px;
+      border-radius: 20px;
+      transition: background .3s, color .3s;
+      cursor: default;
+    }
+    .online-status.online {
+      color: var(--online-color);
+      background: rgba(25, 164, 99, 0.12);
+    }
+    .online-status.offline {
+      color: var(--offline-color);
+      background: rgba(139, 148, 158, 0.15);
+    }
+    .online-status i {
+      margin-right: 4px;
+    }
+
+    .filter {
+      max-width: 1150px;
+      margin: 20px auto;
+      padding: 0 18px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      flex-wrap: wrap;
+    }
+    .filter button {
+      background: var(--bg-filter);
+      border: 1px solid var(--border-light);
+      color: var(--text-secondary);
+      padding: 9px 15px;
+      border-radius: 9px;
+      white-space: nowrap;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background .3s, color .3s, border-color .3s;
+    }
+    .filter button.active {
+      background: var(--btn-primary);
+      border-color: var(--btn-primary);
+      color: #fff;
+    }
+
+    .content {
+      max-width: 1150px;
+      margin: auto;
+      padding: 0 18px 50px;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .topbar h2 {
+      font-size: 18px;
+      color: var(--text-primary);
+    }
+    .topbar-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .btn-request {
+      padding: 8px 18px;
+      background: var(--btn-success);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13px;
+      transition: .15s;
+    }
+    .btn-request:hover {
+      filter: brightness(0.9);
+    }
+    .total {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 13px;
+      overflow: hidden;
+      transition: background .3s, border-color .3s, transform .2s, box-shadow .2s;
+      position: relative;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow);
+    }
+    .product-img {
+      height: 165px;
+      background: var(--bg-input);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 58px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: background .3s;
+    }
+    .product-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .product-img .no-image {
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .info {
+      padding: 14px;
+    }
+    .name {
+      font-size: 14px;
+      font-weight: 800;
+      min-height: 36px;
+      line-height: 18px;
+      color: var(--text-primary);
+    }
+    .badge {
+      display: inline-block;
+      margin-top: 7px;
+      padding: 4px 7px;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      border-radius: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      transition: background .3s, color .3s;
+    }
+    .price {
+      margin-top: 12px;
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--text-primary);
+    }
+    .stock {
+      margin-top: 5px;
+      font-size: 11px;
+      color: #18a365;
+    }
+    .buy-btn {
+      width: 100%;
+      border: 0;
+      background: var(--btn-primary);
+      color: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .buy-btn:hover {
+      background: var(--btn-primary-hover);
+    }
+    .buy-btn:disabled {
+      background: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 60px 10px;
+      color: var(--text-muted);
+      display: none;
+    }
+
+    /* ===== REQUEST SECTION ===== */
+    .requests-section {
+      margin-top: 30px;
+      border-top: 2px solid var(--border-color);
+      padding-top: 20px;
+    }
+    .requests-section .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .requests-section .section-header h3 {
+      font-size: 16px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .requests-section .section-header h3 .count {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+    .request-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .request-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px 16px;
+      transition: background .3s, border-color .3s;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .request-item .request-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+    .request-item .request-info .req-name {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .request-item .request-info .req-user {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .request-item .request-info .req-brainrot {
+      font-size: 13px;
+      color: var(--text-primary);
+      background: var(--bg-filter);
+      padding: 2px 10px;
+      border-radius: 6px;
+    }
+    .request-item .request-info .req-rarity {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 12px;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+    }
+    .request-item .request-info .req-status {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+    .request-item .request-info .req-status.pending {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--request-pending);
+    }
+    .request-item .request-info .req-status.accepted {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--request-accepted);
+    }
+    .request-item .request-info .req-status.rejected {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--request-rejected);
+    }
+    .request-item .request-info .req-reply {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+    .request-item .request-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .request-item .request-actions button {
+      padding: 5px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: .15s;
+    }
+    .request-item .request-actions .btn-accept {
+      background: var(--btn-success);
+      color: #fff;
+    }
+    .request-item .request-actions .btn-accept:hover {
+      filter: brightness(0.9);
+    }
+    .request-item .request-actions .btn-reject {
+      background: var(--btn-danger);
+      color: var(--btn-danger-text);
+    }
+    .request-item .request-actions .btn-reject:hover {
+      filter: brightness(0.9);
+    }
+    .request-item .request-actions .btn-delete-req {
+      background: transparent;
+      color: var(--text-muted);
+    }
+    .request-item .request-actions .btn-delete-req:hover {
+      color: var(--btn-danger-text);
+    }
+    .no-requests {
+      text-align: center;
+      padding: 20px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    /* ===== MODAL ===== */
+    .modal-bg {
+      position: fixed;
+      inset: 0;
+      background: var(--modal-overlay);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 60;
+      padding: 18px;
+    }
+    .modal {
+      width: 100%;
+      max-width: 460px;
+      background: var(--bg-secondary);
+      border-radius: 24px;
+      overflow: hidden;
+      animation: pop .2s ease;
+      max-height: 95vh;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+      transition: background .3s, border-color .3s;
+    }
+    @keyframes pop {
+      from { transform: scale(.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-body {
+      padding: 22px 24px 28px;
+    }
+    .modal-body h2 {
+      font-size: 20px;
+      margin-bottom: 4px;
+      color: var(--text-primary);
+    }
+    .modal-body p {
+      color: var(--text-secondary);
+    }
+    .modal-close {
+      float: right;
+      border: 0;
+      background: var(--bg-filter);
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      color: var(--text-primary);
+      transition: background .3s, color .3s;
+    }
+
+    /* MODAL REQUEST */
+    .modal-request .modal {
+      max-width: 400px;
+    }
+    .modal-request .request-form label {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-secondary);
+      display: block;
+      margin: 10px 0 4px;
+    }
+    .modal-request .request-form input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      font-size: 14px;
+      background: var(--bg-input);
+      color: var(--text-primary);
+      transition: background .3s, border-color .3s, color .3s;
+    }
+    .modal-request .request-form input:focus {
+      border-color: var(--btn-primary);
+      outline: none;
+    }
+
+    /* MODAL MUSIC ADMIN */
+    .modal-music .modal {
+      max-width: 420px;
+    }
+    .modal-music .music-list {
+      max-height: 250px;
+      overflow-y: auto;
+      margin: 10px 0;
+    }
+    .modal-music .music-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 14px;
+    }
+    .modal-music .music-item .music-name {
+      color: var(--text-primary);
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .modal-music .music-item .music-actions button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-secondary);
+      padding: 4px 8px;
+      font-size: 14px;
+      transition: color .15s;
+    }
+    .modal-music .music-item .music-actions button:hover {
+      color: var(--btn-danger);
+    }
+    .modal-music .music-item .music-actions button.play-btn:hover {
+      color: var(--btn-primary);
+    }
+
+    /* MODAL REPLY */
+    .modal-reply .modal {
+      max-width: 400px;
+    }
+    .modal-reply .reply-content {
+      background: var(--bg-input);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 12px 0;
+    }
+    .modal-reply .reply-content .reply-status {
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .modal-reply .reply-content .reply-status.accepted {
+      color: var(--request-accepted);
+    }
+    .modal-reply .reply-content .reply-status.rejected {
+      color: var(--request-rejected);
+    }
+    .modal-reply .reply-content .reply-message {
+      color: var(--text-primary);
+      font-size: 14px;
+    }
+
+    /* MODAL EDIT PRODUK */
+    .modal-img-edit {
+      height: 200px;
+      background: var(--bg-input);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      transition: background .3s;
+    }
+    .modal-img-edit img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .modal-img-edit .no-image {
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .modal-price {
+      font-size: 22px;
+      font-weight: 900;
+      margin: 10px 0 4px;
+      color: var(--text-primary);
+    }
+    .edit-form {
+      margin-top: 18px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 18px;
+      transition: border-color .3s;
+    }
+    .edit-form label {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-secondary);
+      display: block;
+      margin: 10px 0 4px;
+    }
+    .edit-form input,
+    .edit-form select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      font-size: 14px;
+      background: var(--bg-input);
+      color: var(--text-primary);
+      transition: background .3s, border-color .3s, color .3s;
+    }
+    .edit-form input:focus,
+    .edit-form select:focus {
+      border-color: var(--btn-primary);
+      outline: none;
+      background: var(--bg-secondary);
+    }
+    .edit-form .row-2 {
+      display: flex;
+      gap: 12px;
+    }
+    .edit-form .row-2 > div {
+      flex: 1;
+    }
+    .edit-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .edit-actions button {
+      flex: 1;
+      padding: 11px;
+      border: 0;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      min-width: 80px;
+      transition: background .15s;
+    }
+    .btn-save {
+      background: var(--btn-primary);
+      color: #fff;
+    }
+    .btn-save:hover {
+      background: var(--btn-primary-hover);
+    }
+    .btn-delete {
+      background: var(--btn-danger);
+      color: var(--btn-danger-text);
+    }
+    .btn-delete:hover {
+      filter: brightness(0.9);
+    }
+    .btn-close-edit {
+      background: var(--bg-filter);
+      color: var(--text-secondary);
+    }
+    .btn-add {
+      background: var(--btn-success);
+      color: #fff;
+    }
+    .btn-add:hover {
+      filter: brightness(0.9);
+    }
+    .btn-profile {
+      background: var(--btn-primary);
+      color: #fff;
+    }
+    .btn-profile:hover {
+      background: var(--btn-primary-hover);
+    }
+    .btn-logout {
+      background: var(--btn-danger);
+      color: var(--btn-danger-text);
+    }
+    .btn-logout:hover {
+      filter: brightness(0.9);
+    }
+
+    .file-input-wrap {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+    }
+    .file-input-wrap input[type="file"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+    .file-input-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--bg-filter);
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px dashed var(--border-light);
+      color: var(--text-secondary);
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .15s, border-color .3s, color .3s;
+    }
+    .file-input-label:hover {
+      background: var(--bg-input);
+    }
+
+    /* MODAL BELI */
+    .modal-buy .modal {
+      max-width: 400px;
+    }
+    .buy-detail-img {
+      height: 150px;
+      background: var(--bg-input);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: background .3s;
+    }
+    .buy-detail-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .buy-detail-img .no-image {
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .buy-form label {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-secondary);
+      display: block;
+      margin: 10px 0 4px;
+    }
+    .buy-form input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      font-size: 14px;
+      background: var(--bg-input);
+      color: var(--text-primary);
+      transition: background .3s, border-color .3s, color .3s;
+    }
+    .buy-form input:focus {
+      border-color: var(--btn-primary);
+      outline: none;
+    }
+    .order-btn {
+      width: 100%;
+      padding: 13px;
+      background: #25D366;
+      color: #fff;
+      border: 0;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 16px;
+      transition: background .15s;
+    }
+    .order-btn:hover {
+      background: #1da851;
+    }
+
+    /* MODAL KONFIRMASI */
+    .modal-confirm .modal {
+      max-width: 400px;
+    }
+    .modal-confirm .confirm-details {
+      background: var(--bg-input);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 12px 0;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    .modal-confirm .confirm-details strong {
+      color: var(--text-primary);
+    }
+    .modal-confirm .confirm-details span {
+      color: var(--text-secondary);
+    }
+    .modal-confirm .confirm-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .modal-confirm .confirm-actions button {
+      flex: 1;
+      padding: 11px;
+      border: 0;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .modal-confirm .btn-yes {
+      background: #25D366;
+      color: #fff;
+    }
+    .modal-confirm .btn-yes:hover {
+      background: #1da851;
+    }
+    .modal-confirm .btn-no {
+      background: var(--bg-filter);
+      color: var(--text-secondary);
+    }
+
+    /* MODAL PASSWORD */
+    .modal-password .modal {
+      max-width: 380px;
+    }
+    .modal-password .modal-body {
+      text-align: center;
+    }
+    .modal-password .modal-body h2 {
+      margin-bottom: 8px;
+    }
+    .modal-password .modal-body p {
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+    .modal-password input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      font-size: 14px;
+      background: var(--bg-input);
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      transition: background .3s, border-color .3s, color .3s;
+    }
+    .modal-password input:focus {
+      border-color: var(--btn-primary);
+      outline: none;
+    }
+    .modal-password .pass-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .modal-password .pass-actions button {
+      flex: 1;
+      padding: 11px;
+      border: 0;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .modal-password .btn-unlock {
+      background: var(--btn-primary);
+      color: #fff;
+    }
+    .modal-password .btn-unlock:hover {
+      background: var(--btn-primary-hover);
+    }
+    .modal-password .btn-cancel-pass {
+      background: var(--bg-filter);
+      color: var(--text-secondary);
+    }
+    .modal-password .pass-status {
+      font-size: 12px;
+      margin-top: 10px;
+      color: var(--text-secondary);
+    }
+    .modal-password .pass-status.error {
+      color: #f85149;
+    }
+    .modal-password .pass-status.success {
+      color: #18a365;
+    }
+
+    /* MODAL PROFIL */
+    .modal-profile .modal {
+      max-width: 420px;
+    }
+    .modal-profile .avatar-preview {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--bg-input);
+      margin: 0 auto 16px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      font-weight: 700;
+      color: #fff;
+      border: 3px solid var(--border-color);
+    }
+    .modal-profile .avatar-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .modal-profile .profile-form label {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-secondary);
+      display: block;
+      margin: 12px 0 4px;
+    }
+    .modal-profile .profile-form input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      font-size: 14px;
+      background: var(--bg-input);
+      color: var(--text-primary);
+      transition: background .3s, border-color .3s, color .3s;
+    }
+    .modal-profile .profile-form input:focus {
+      border-color: var(--btn-primary);
+      outline: none;
+    }
+    .modal-profile .profile-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .modal-profile .profile-actions button {
+      flex: 1;
+      padding: 11px;
+      border: 0;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .modal-profile .toggle-status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-top: 1px solid var(--border-color);
+      margin-top: 12px;
+    }
+    .modal-profile .toggle-status label {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+    .modal-profile .toggle-status .switch {
+      position: relative;
+      width: 48px;
+      height: 26px;
+      background: var(--border-light);
+      border-radius: 13px;
+      cursor: pointer;
+      transition: background .3s;
+      flex-shrink: 0;
+    }
+    .modal-profile .toggle-status .switch.active {
+      background: var(--online-color);
+    }
+    .modal-profile .toggle-status .switch .slider {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform .3s;
+      box-shadow: 0 2px 4px rgba(0,0,0,.2);
+    }
+    .modal-profile .toggle-status .switch.active .slider {
+      transform: translateX(22px);
+    }
+
+    /* MODAL LOGOUT */
+    .modal-logout .modal {
+      max-width: 360px;
+    }
+    .modal-logout .modal-body {
+      text-align: center;
+    }
+    .modal-logout .modal-body h2 {
+      margin-bottom: 8px;
+    }
+    .modal-logout .modal-body p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+    .modal-logout .logout-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .modal-logout .logout-actions button {
+      flex: 1;
+      padding: 11px;
+      border: 0;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .modal-logout .btn-logout-confirm {
+      background: #e74c3c;
+      color: #fff;
+    }
+    .modal-logout .btn-logout-confirm:hover {
+      background: #c0392b;
+    }
+    .modal-logout .btn-logout-cancel {
+      background: var(--bg-filter);
+      color: var(--text-secondary);
+    }
+
+    /* MODAL AUTH */
+    .modal-auth .modal {
+      max-width: 380px;
+    }
+    .modal-auth .modal-body {
+      text-align: center;
+    }
+    .modal-auth .modal-body h2 {
+      margin-bottom: 6px;
+    }
+    .modal-auth .modal-body p.sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+    .modal-auth .auth-form label {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-secondary);
+      display: block;
+      text-align: left;
+      margin: 10px 0 4px;
+    }
+    .modal-auth .auth-form input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      font-size: 14px;
+      background: var(--bg-input);
+      color: var(--text-primary);
+      transition: background .3s, border-color .3s, color .3s;
+    }
+    .modal-auth .auth-form input:focus {
+      border-color: var(--btn-primary);
+      outline: none;
+    }
+    .modal-auth .auth-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .modal-auth .auth-actions button {
+      flex: 1;
+      padding: 11px;
+      border: 0;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .modal-auth .auth-actions .btn-login {
+      background: var(--btn-primary);
+      color: #fff;
+    }
+    .modal-auth .auth-actions .btn-login:hover {
+      background: var(--btn-primary-hover);
+    }
+    .modal-auth .auth-actions .btn-register {
+      background: var(--btn-success);
+      color: #fff;
+    }
+    .modal-auth .auth-actions .btn-register:hover {
+      filter: brightness(0.9);
+    }
+    .modal-auth .auth-actions .btn-cancel-auth {
+      background: var(--bg-filter);
+      color: var(--text-secondary);
+    }
+    .modal-auth .auth-status {
+      font-size: 12px;
+      margin-top: 10px;
+      color: var(--text-secondary);
+    }
+    .modal-auth .auth-status.error {
+      color: #f85149;
+    }
+    .modal-auth .auth-status.success {
+      color: #18a365;
+    }
+    .modal-auth .toggle-auth {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .modal-auth .toggle-auth a {
+      color: var(--btn-primary);
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .modal-auth .toggle-auth a:hover {
+      text-decoration: underline;
+    }
+
+    .bottom-actions {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+      z-index: 30;
+    }
+
+    .theme-toggle {
+      width: 48px;
+      height: 48px;
+      border: 1px solid var(--border-light);
+      border-radius: 50%;
+      background: var(--bg-secondary);
+      cursor: pointer;
+      font-size: 20px;
+      color: var(--text-primary);
+      transition: background .3s, border-color .3s, color .3s, transform .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .theme-toggle:hover {
+      transform: scale(0.95);
+      background: var(--bg-filter);
+    }
+
+    footer {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      padding: 25px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 12px;
+      transition: background .3s, border-color .3s, color .3s;
+      margin-bottom: 60px;
+    }
+
+    @media(max-width:800px) {
+      .products { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .product-img { height: 135px; }
+      .nav { gap: 10px; }
+      .logo { font-size: 17px; }
+      .shop-box { padding: 15px; }
+      .bottom-actions { bottom: 80px; right: 15px; }
+      .theme-toggle { width: 44px; height: 44px; font-size: 18px; }
+      .request-item { flex-direction: column; align-items: stretch; }
+      .request-item .request-actions { justify-content: flex-end; }
+      .music-bar { padding: 6px 12px; gap: 8px; }
+      .music-bar .now-playing { max-width: 100px; font-size: 12px; }
+      .music-bar .controls button { width: 30px; height: 30px; font-size: 12px; }
+      .music-bar .volume-wrap input[type="range"] { width: 40px; }
+    }
+    @media(max-width:430px) {
+      .products { grid-template-columns: repeat(2, 1fr); }
+      .product-img { height: 125px; }
+      .name { font-size: 13px; }
+      .price { font-size: 14px; }
+      .shop-info h1 { font-size: 17px; }
+      .modal { max-width: 98%; }
+      .bottom-actions { bottom: 75px; right: 12px; }
+      .theme-toggle { width: 40px; height: 40px; font-size: 16px; }
+      .request-item .request-info { flex-direction: column; align-items: flex-start; gap: 4px; }
+      .music-bar .now-playing { max-width: 70px; font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="nav">
+      <div class="logo" id="logoTrigger" title="Ketuk 5x untuk owner panel">
+        LummXD <span>Store</span>
+        <span class="tap-indicator" id="tapIndicator">0</span>
+      </div>
+      <div class="search">
+        <span class="search-icon">🔎</span>
+        <input id="search" type="text" placeholder="Cari Brainrot...">
+      </div>
+      <div id="userInfoHeader" style="display:none;" class="user-info-header">
+        <i class="fas fa-user-circle"></i>
+        <span id="usernameDisplay"></span>
+        <button class="btn-logout-user" onclick="logoutUser()"><i class="fas fa-sign-out-alt"></i></button>
+      </div>
+      <!-- BATTERY INDICATOR -->
+      <div class="battery-indicator" id="batteryIndicator">
+        <div class="battery-icon">
+          <div class="fill" id="batteryFill" style="width:100%"></div>
+        </div>
+        <span class="battery-text" id="batteryText">100%</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="shop">
+    <div class="shop-box">
+      <div class="avatar" id="avatarDisplay">LX</div>
+      <div class="shop-info">
+        <h1 id="storeNameDisplay">LummXD Store</h1>
+        <p id="storeDescDisplay">🧠 Brainrot Store · Request Brainrot</p>
+      </div>
+      <div class="online-status online" id="statusDisplay"><i class="fas fa-circle"></i> Online</div>
+    </div>
+  </section>
+
+  <div class="filter">
+    <button class="active" onclick="filter('Semua',this)">Semua</button>
+    <button onclick="filter('Surgawi',this)">Surgawi</button>
+    <button onclick="filter('Abadi',this)">Abadi</button>
+    <button onclick="filter('Abyssal',this)">Abyssal</button>
+  </div>
+
+  <main class="content">
+    <div class="topbar">
+      <h2>Koleksi Tersedia</h2>
+      <div class="topbar-actions">
+        <span class="total" id="total"></span>
+        <button class="btn-request" onclick="openRequestModal()"><i class="fas fa-plus"></i> Request Brainrot</button>
+      </div>
+    </div>
+    <div class="products" id="products"></div>
+    <div class="empty" id="empty">😕<br><br>Brainrot tidak ditemukan.</div>
+
+    <!-- REQUEST SECTION -->
+    <div class="requests-section" id="requestsSection">
+      <div class="section-header">
+        <h3>📋 Request Brainrot <span class="count" id="requestCount"></span></h3>
+        <span style="font-size:12px;color:var(--text-muted);">🔒 Hanya kamu & admin yang bisa lihat</span>
+      </div>
+      <div class="request-list" id="requestList"></div>
+    </div>
+  </main>
+
+  <!-- MODAL REQUEST -->
+  <div class="modal-bg modal-request" id="requestModal">
+    <div class="modal">
+      <div class="modal-body">
+        <button class="modal-close" onclick="closeRequestModal()">✕</button>
+        <h2><i class="fas fa-plus-circle"></i> Request Brainrot</h2>
+        <p>Request Brainrot yang kamu inginkan</p>
+        <div class="request-form">
+          <label>Nama Brainrot</label>
+          <input id="reqBrainrotInput" type="text" placeholder="Contoh: Tralalero Tralala">
+          <label>Mutasi (Rarity)</label>
+          <input id="reqRarityInput" type="text" placeholder="Contoh: Surgawi, Abadi, Abyssal, dll">
+          <div style="display:flex;gap:10px;margin-top:16px;">
+            <button class="btn-save" onclick="submitRequest()" style="flex:1;padding:11px;border:0;border-radius:10px;font-weight:600;cursor:pointer;"><i class="fas fa-paper-plane"></i> Kirim Request</button>
+            <button class="btn-close-edit" onclick="closeRequestModal()" style="flex:1;padding:11px;border:0;border-radius:10px;font-weight:600;cursor:pointer;">Batal</button>
+          </div>
+          <div class="auth-status" id="reqStatus" style="margin-top:10px;font-size:12px;"><i class="fas fa-circle"></i> Isi data di atas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL REPLY -->
+  <div class="modal-bg modal-reply" id="replyModal">
+    <div class="modal">
+      <div class="modal-body">
+        <button class="modal-close" onclick="closeReplyModal()">✕</button>
+        <h2><i class="fas fa-reply"></i> Balasan Admin</h2>
+        <div class="reply-content" id="replyContent">
+          <div class="reply-status" id="replyStatus">Status</div>
+          <div class="reply-message" id="replyMessage">Pesan</div>
+        </div>
+        <button class="btn-close-edit" onclick="closeReplyModal()" style="width:100%;padding:11px;border:0;border-radius:10px;font-weight:600;cursor:pointer;">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDIT PRODUK -->
+  <div class="modal-bg" id="editModal">
+    <div class="modal">
+      <div class="modal-img-edit" id="editImgContainer"><span class="no-image">Tidak ada gambar</span></div>
+      <div class="modal-body">
+        <button class="modal-close" onclick="closeEditModal()">✕</button>
+        <h2 id="editNameDisplay">Nama Produk</h2>
+        <span class="badge" id="editRarityDisplay">Rarity</span>
+        <div class="modal-price" id="editPriceDisplay">Rp0</div>
+        <p style="color:#18a365;font-size:13px;" id="editStockDisplay">● 0 stok</p>
+        <div class="edit-form">
+          <label>Nama Produk</label>
+          <input id="editNameInput" type="text" value="">
+          <label>Rarity</label>
+          <select id="editRaritySelect"><option>Surgawi</option><option>Abadi</option><option>Abyssal</option></select>
+          <div class="row-2">
+            <div><label>Harga</label><input id="editPriceInput" type="text" value="Rp0"></div>
+            <div><label>Stok</label><input id="editStockInput" type="number" value="1" min="0"></div>
+          </div>
+          <label>Foto Produk</label>
+          <div class="file-input-wrap">
+            <span class="file-input-label"><i class="fas fa-image"></i> Upload Gambar</span>
+            <input type="file" id="editFileInput" accept="image/*">
+          </div>
+          <div class="edit-actions">
+            <button class="btn-add" onclick="addNewProduct()"><i class="fas fa-plus"></i> Tambah</button>
+            <button class="btn-save" onclick="saveProductEdit()"><i class="fas fa-save"></i> Simpan</button>
+            <button class="btn-delete" onclick="deleteProduct()"><i class="fas fa-trash"></i> Hapus</button>
+            <button class="btn-profile" onclick="openProfileModal()"><i class="fas fa-store"></i> Edit Profil</button>
+            <button class="btn-logout" onclick="openLogoutModal()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            <button class="btn-close-edit" onclick="closeEditModal()">Batal</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL BELI -->
+  <div class="modal-bg modal-buy" id="buyModal">
+    <div class="modal">
+      <div class="buy-detail-img" id="buyImgContainer"><span class="no-image">Tidak ada gambar</span></div>
+      <div class="modal-body">
+        <button class="modal-close" onclick="closeBuyModal()">✕</button>
+        <h2 id="buyName">Nama Produk</h2>
+        <span class="badge" id="buyRarity">Rarity</span>
+        <div class="modal-price" id="buyPrice">Rp0</div>
+        <p style="color:#18a365;font-size:13px;" id="buyStock">● 0 stok</p>
+        <div class="buy-form">
+          <label>Username Roblox</label>
+          <input id="buyerRobloxInput" type="text" placeholder="Masukkan username Roblox Anda">
+          <label>Nomor WhatsApp</label>
+          <input id="buyerPhoneInput" type="text" placeholder="Contoh: 6281234567890">
+          <button class="order-btn" onclick="openConfirmModal()"><i class="fab fa-whatsapp"></i> Konfirmasi Pesanan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL KONFIRMASI -->
+  <div class="modal-bg modal-confirm" id="confirmModal">
+    <div class="modal">
+      <div class="modal-body">
+        <button class="modal-close" onclick="closeConfirmModal()">✕</button>
+        <h2><i class="fas fa-check-circle" style="color:#25D366;"></i> Konfirmasi Pesanan</h2>
+        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px;">Pastikan data berikut sudah benar:</p>
+        <div class="confirm-details" id="confirmDetails">
+          <div><strong>Username Roblox:</strong> <span id="confirmRoblox">-</span></div>
+          <div><strong>No. WhatsApp:</strong> <span id="confirmPhone">-</span></div>
+          <div><strong>Produk:</strong> <span id="confirmProduct">-</span></div>
+          <div><strong>Rarity:</strong> <span id="confirmRarity">-</span></div>
+          <div><strong>Harga:</strong> <span id="confirmPrice">-</span></div>
+        </div>
+        <div class="confirm-actions">
+          <button class="btn-yes" onclick="processOrder()"><i class="fas fa-paper-plane"></i> Ya, Kirim</button>
+          <button class="btn-no" onclick="closeConfirmModal()">Batal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PASSWORD OWNER -->
+  <div class="modal-bg modal-password" id="passwordModal">
+    <div class="modal">
+      <div class="modal-body">
+        <button class="modal-close" onclick="closePasswordModal()">✕</button>
+        <h2><i class="fas fa-lock"></i> Panel Owner</h2>
+        <p>Masukkan password untuk mengakses panel owner</p>
+        <input type="password" id="ownerPassInput" placeholder="Masukkan password">
+        <div class="pass-actions">
+          <button class="btn-unlock" onclick="unlockOwner()"><i class="fas fa-key"></i> Buka</button>
+          <button class="btn-cancel-pass" onclick="closePasswordModal()">Batal</button>
+        </div>
+        <div class="pass-status" id="passStatus"><i class="fas fa-circle"></i> Masukkan password</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PROFIL -->
+  <div class="modal-bg modal-profile" id="profileModal">
+    <div class="modal">
+      <div class="modal-body">
+        <button class="modal-close" onclick="closeProfileModal()">✕</button>
+        <h2><i class="fas fa-store"></i> Edit Profil Toko</h2>
+        <div class="avatar-preview" id="profileAvatarPreview"><span id="profileAvatarText">LX</span></div>
+        <div class="profile-form">
+          <label>Avatar Toko</label>
+          <div class="file-input-wrap">
+            <span class="file-input-label"><i class="fas fa-user-circle"></i> Upload Avatar</span>
+            <input type="file" id="profileAvatarInput" accept="image/*">
+          </div>
+          <label>Nama Toko</label>
+          <input id="profileNameInput" type="text" value="LummXD Store">
+          <label>Deskripsi</label>
+          <input id="profileDescInput" type="text" value="🧠 Brainrot Store · Request Brainrot">
+          <div class="toggle-status">
+            <label>Status Toko</label>
+            <div class="switch" id="statusSwitch" onclick="toggleStatusSwitch()"><div class="slider"></div></div>
+            <span id="statusLabel" style="font-size:13px;font-weight:500;">Online</span>
+          </div>
+          <div class="profile-actions">
+            <button class="btn-save" onclick="saveProfile()"><i class="fas fa-save"></i> Simpan Profil</button>
+            <button class="btn-logout" onclick="openLogoutModal()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            <button class="btn-close-edit" onclick="closeProfileModal()">Batal</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL LOGOUT -->
+  <div class="modal-bg modal-logout" id="logoutModal">
+    <div class="modal">
+      <div class="modal-body">
+        <button class="modal-close" onclick="closeLogoutModal()">✕</button>
+        <h2><i class="fas fa-sign-out-alt" style="color:#e74c3c;"></i> Logout Owner</h2>
+        <p>Apakah Anda yakin ingin keluar dari panel owner?<br>Anda perlu memasukkan password lagi untuk mengakses.</p>
+        <div class="logout-actions">
+          <button class="btn-logout-confirm" onclick="confirmLogout()"><i class="fas fa-check"></i> Ya, Logout</button>
+          <button class="btn-logout-cancel" onclick="closeLogoutModal()">Batal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL MUSIC ADMIN -->
+  <div class="modal-bg modal-music" id="musicModal">
+    <div class="modal">
+      <div class="modal-body">
+        <button class="modal-close" onclick="closeMusicModal()">✕</button>
+        <h2><i class="fas fa-music"></i> Kelola Musik</h2>
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Upload musik atau kelola daftar putar (Admin Only)</p>
+        <div class="file-input-wrap" style="margin-bottom:16px;">
+          <span class="file-input-label"><i class="fas fa-upload"></i> Upload Musik (MP3)</span>
+          <input type="file" id="musicFileInput" accept="audio/*">
+        </div>
+        <div class="music-list" id="musicList"></div>
+        <div style="display:flex;gap:10px;margin-top:12px;">
+          <button class="btn-save" onclick="saveMusicList()" style="flex:1;padding:11px;border:0;border-radius:10px;font-weight:600;cursor:pointer;"><i class="fas fa-save"></i> Simpan</button>
+          <button class="btn-close-edit" onclick="closeMusicModal()" style="flex:1;padding:11px;border:0;border-radius:10px;font-weight:600;cursor:pointer;">Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL AUTH -->
+  <div class="modal-bg modal-auth" id="authModal">
+    <div class="modal">
+      <div class="modal-body">
+        <button class="modal-close" onclick="closeAuthModal()">✕</button>
+        <h2 id="authTitle">Login</h2>
+        <p class="sub" id="authSub">Masuk untuk melanjutkan</p>
+        <div class="auth-form">
+          <label>Username</label>
+          <input type="text" id="authUsername" placeholder="Masukkan username">
+          <label>Password</label>
+          <input type="password" id="authPassword" placeholder="Masukkan password">
+          <div class="auth-actions">
+            <button class="btn-login" id="authActionBtn" onclick="handleAuth()">Login</button>
+            <button class="btn-register" onclick="toggleAuthMode()" id="authToggleBtn">Daftar</button>
+            <button class="btn-cancel-auth" onclick="closeAuthModal()">Batal</button>
+          </div>
+          <div class="auth-status" id="authStatus"><i class="fas fa-circle"></i> Masukkan data</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MUSIC PLAYER BAR -->
+  <div class="music-bar" id="musicBar">
+    <div class="now-playing">
+      <span id="currentSongName"><strong>🎵</strong> Tidak ada musik</span>
+    </div>
+    <div class="controls">
+      <button onclick="prevTrack()" id="prevBtn" disabled><i class="fas fa-step-backward"></i></button>
+      <button onclick="togglePlay()" id="playBtn"><i class="fas fa-play"></i></button>
+      <button onclick="nextTrack()" id="nextBtn" disabled><i class="fas fa-step-forward"></i></button>
+    </div>
+    <div class="progress-wrap">
+      <span class="time" id="currentTime">0:00</span>
+      <input type="range" id="progressBar" min="0" max="100" value="0" disabled>
+      <span class="time" id="totalTime">0:00</span>
+    </div>
+    <div class="volume-wrap">
+      <i class="fas fa-volume-up"></i>
+      <input type="range" id="volumeBar" min="0" max="100" value="70">
+    </div>
+    <button class="admin-music-btn" id="adminMusicBtn" style="display:none;" onclick="openMusicModal()"><i class="fas fa-cog"></i> Kelola</button>
+  </div>
+
+  <!-- BOTTOM ACTIONS -->
+  <div class="bottom-actions">
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+      <i class="fas fa-moon" id="themeIcon"></i>
+    </button>
+  </div>
+
+  <footer>© 2026 LummXD Store • Brainrot Store</footer>
+
+  <script>
+    // ========== BATTERY INDICATOR ==========
+    function updateBattery() {
+      if ('getBattery' in navigator) {
+        navigator.getBattery().then(function(battery) {
+          const level = Math.round(battery.level * 100);
+          const fill = document.getElementById('batteryFill');
+          const text = document.getElementById('batteryText');
+          
+          fill.style.width = level + '%';
+          text.textContent = level + '%';
+          
+          fill.className = 'fill';
+          if (level <= 15) {
+            fill.classList.add('danger');
+            text.classList.add('low');
+          } else if (level <= 30) {
+            fill.classList.add('warning');
+          } else {
+            text.classList.remove('low');
+          }
+          
+          battery.addEventListener('levelchange', function() {
+            const newLevel = Math.round(battery.level * 100);
+            fill.style.width = newLevel + '%';
+            text.textContent = newLevel + '%';
+            fill.className = 'fill';
+            if (newLevel <= 15) {
+              fill.classList.add('danger');
+              text.classList.add('low');
+            } else if (newLevel <= 30) {
+              fill.classList.add('warning');
+            } else {
+              text.classList.remove('low');
+            }
+          });
+        }).catch(function() {
+          document.getElementById('batteryIndicator').style.display = 'none';
+        });
+      } else {
+        document.getElementById('batteryIndicator').style.display = 'none';
+      }
+    }
+
+    // ========== KONFIGURASI ==========
+    const OWNER_PASSWORD = "admin112";
+    const STORE_PHONE = "6282233308414";
+
+    // ========== MUSIC SYSTEM ==========
+    let musicList = [];
+    let currentTrackIndex = 0;
+    let isPlaying = false;
+    let hasStarted = false; // Flag untuk cek apakah musik sudah pernah di-start
+    let audio = new Audio();
+    audio.loop = false;
+    let musicReady = false;
+
+    const DEFAULT_MUSIC = [
+      { name: "Seandainya", data: "https://feeldreams.github.io/audio/seandainya.mp3" }
+    ];
+
+    function loadMusic() {
+      const saved = localStorage.getItem('lummxd_music');
+      if (saved) {
+        try { 
+          musicList = JSON.parse(saved);
+          if (musicList.length > 0) {
+            loadTrack(0);
+            return;
+          }
+        } catch (e) { musicList = []; }
+      }
+      
+      musicList = JSON.parse(JSON.stringify(DEFAULT_MUSIC));
+      saveMusic();
+      loadTrack(0);
+    }
+
+    function saveMusic() {
+      localStorage.setItem('lummxd_music', JSON.stringify(musicList));
+    }
+
+    function loadTrack(index) {
+      if (musicList.length === 0) {
+        document.getElementById('currentSongName').innerHTML = '<strong>🎵</strong> Tidak ada musik';
+        document.getElementById('playBtn').disabled = true;
+        document.getElementById('prevBtn').disabled = true;
+        document.getElementById('nextBtn').disabled = true;
+        document.getElementById('progressBar').disabled = true;
+        return;
+      }
+      
+      if (index < 0) index = musicList.length - 1;
+      if (index >= musicList.length) index = 0;
+      currentTrackIndex = index;
+      
+      const track = musicList[currentTrackIndex];
+      document.getElementById('currentSongName').innerHTML = `<strong>🎵</strong> ${track.name || 'Untitled'}`;
+      document.getElementById('playBtn').disabled = false;
+      document.getElementById('prevBtn').disabled = false;
+      document.getElementById('nextBtn').disabled = false;
+      document.getElementById('progressBar').disabled = false;
+      
+      audio.src = track.data;
+      audio.load();
+      audio.currentTime = 0;
+      document.getElementById('progressBar').value = 0;
+      document.getElementById('currentTime').textContent = '0:00';
+      musicReady = true;
+      
+      audio.addEventListener('loadedmetadata', function() {
+        document.getElementById('totalTime').textContent = formatTime(audio.duration);
+      }, { once: true });
+      
+      // Jika sudah pernah di-start dan isPlaying true, lanjutkan play
+      if (hasStarted && isPlaying) {
+        audio.play().catch(() => {});
+      }
+    }
+
+    function togglePlay() {
+      if (musicList.length === 0) return;
+      
+      // Jika belum pernah di-start, ini adalah pertama kali
+      if (!hasStarted) {
+        hasStarted = true;
+        if (!audio.src || !musicReady) {
+          loadTrack(currentTrackIndex);
+        }
+        audio.play().catch(() => {});
+        isPlaying = true;
+        document.getElementById('playBtn').innerHTML = '<i class="fas fa-pause"></i>';
+        return;
+      }
+      
+      // Toggle normal setelah pertama kali
+      if (isPlaying) {
+        audio.pause();
+        isPlaying = false;
+        document.getElementById('playBtn').innerHTML = '<i class="fas fa-play"></i>';
+      } else {
+        if (!audio.src || !musicReady) {
+          loadTrack(currentTrackIndex);
+        }
+        audio.play().catch(() => {});
+        isPlaying = true;
+        document.getElementById('playBtn').innerHTML = '<i class="fas fa-pause"></i>';
+      }
+    }
+
+    function prevTrack() {
+      if (musicList.length === 0) return;
+      loadTrack(currentTrackIndex - 1);
+      if (isPlaying) {
+        audio.play().catch(() => {});
+        document.getElementById('playBtn').innerHTML = '<i class="fas fa-pause"></i>';
+      }
+    }
+
+    function nextTrack() {
+      if (musicList.length === 0) return;
+      loadTrack(currentTrackIndex + 1);
+      if (isPlaying) {
+        audio.play().catch(() => {});
+        document.getElementById('playBtn').innerHTML = '<i class="fas fa-pause"></i>';
+      }
+    }
+
+    function formatTime(seconds) {
+      if (!seconds || isNaN(seconds)) return '0:00';
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return mins + ':' + (secs < 10 ? '0' : '') + secs;
+    }
+
+    // ========== MUSIC EVENTS ==========
+    audio.addEventListener('timeupdate', function() {
+      if (audio.duration) {
+        const progress = (audio.currentTime / audio.duration) * 100;
+        document.getElementById('progressBar').value = progress;
+        document.getElementById('currentTime').textContent = formatTime(audio.currentTime);
+      }
+    });
+
+    audio.addEventListener('ended', function() {
+      if (musicList.length > 0) {
+        const nextIndex = (currentTrackIndex + 1) % musicList.length;
+        loadTrack(nextIndex);
+        if (isPlaying) {
+          audio.play().catch(() => {});
+        }
+      }
+    });
+
+    audio.addEventListener('error', function() {
+      isPlaying = false;
+      document.getElementById('playBtn').innerHTML = '<i class="fas fa-play"></i>';
+    });
+
+    document.getElementById('progressBar').addEventListener('input', function() {
+      if (audio.duration) {
+        audio.currentTime = (this.value / 100) * audio.duration;
+      }
+    });
+
+    document.getElementById('volumeBar').addEventListener('input', function() {
+      audio.volume = this.value / 100;
+    });
+
+    // ========== AUTH SYSTEM ==========
+    let currentUser = null;
+    let authMode = 'login';
+
+    function loadUsers() {
+      const saved = localStorage.getItem('lummxd_users');
+      if (saved) {
+        try { return JSON.parse(saved); } catch (e) {}
+      }
+      return {};
+    }
+
+    function saveUsers(users) {
+      localStorage.setItem('lummxd_users', JSON.stringify(users));
+    }
+
+    function getUsers() {
+      return loadUsers();
+    }
+
+    function updateUserUI() {
+      const userInfo = document.getElementById('userInfoHeader');
+      const usernameDisplay = document.getElementById('usernameDisplay');
+      
+      if (currentUser) {
+        userInfo.style.display = 'flex';
+        usernameDisplay.textContent = currentUser;
+      } else {
+        userInfo.style.display = 'none';
+      }
+    }
+
+    function openAuthModal(mode) {
+      authMode = mode || 'login';
+      const title = document.getElementById('authTitle');
+      const sub = document.getElementById('authSub');
+      const btn = document.getElementById('authActionBtn');
+      const toggleBtn = document.getElementById('authToggleBtn');
+      
+      if (authMode === 'login') {
+        title.textContent = 'Login';
+        sub.textContent = 'Masuk ke akun Anda';
+        btn.textContent = 'Login';
+        btn.className = 'btn-login';
+        toggleBtn.textContent = 'Daftar';
+      } else {
+        title.textContent = 'Daftar';
+        sub.textContent = 'Buat akun baru';
+        btn.textContent = 'Daftar';
+        btn.className = 'btn-register';
+        toggleBtn.textContent = 'Login';
+      }
+      
+      document.getElementById('authUsername').value = '';
+      document.getElementById('authPassword').value = '';
+      document.getElementById('authStatus').innerHTML = '<i class="fas fa-circle"></i> Masukkan data';
+      document.getElementById('authStatus').className = 'auth-status';
+      document.getElementById('authModal').style.display = 'flex';
+      document.getElementById('authUsername').focus();
+    }
+
+    function closeAuthModal() {
+      document.getElementById('authModal').style.display = 'none';
+    }
+
+    function toggleAuthMode() {
+      if (authMode === 'login') {
+        openAuthModal('register');
+      } else {
+        openAuthModal('login');
+      }
+    }
+
+    function handleAuth() {
+      const username = document.getElementById('authUsername').value.trim();
+      const password = document.getElementById('authPassword').value.trim();
+      const statusEl = document.getElementById('authStatus');
+      
+      if (!username || !password) {
+        statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Isi semua field!';
+        statusEl.className = 'auth-status error';
+        return;
+      }
+      
+      const users = getUsers();
+      
+      if (authMode === 'login') {
+        if (users[username] && users[username] === password) {
+          currentUser = username;
+          localStorage.setItem('lummxd_current_user', username);
+          statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Login berhasil!';
+          statusEl.className = 'auth-status success';
+          updateUserUI();
+          setTimeout(closeAuthModal, 800);
+          renderRequests();
+        } else {
+          statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Username atau password salah!';
+          statusEl.className = 'auth-status error';
+        }
+      } else {
+        if (users[username]) {
+          statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Username sudah digunakan!';
+          statusEl.className = 'auth-status error';
+        } else {
+          users[username] = password;
+          saveUsers(users);
+          currentUser = username;
+          localStorage.setItem('lummxd_current_user', username);
+          statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Pendaftaran berhasil!';
+          statusEl.className = 'auth-status success';
+          updateUserUI();
+          setTimeout(closeAuthModal, 800);
+          renderRequests();
+        }
+      }
+    }
+
+    function logoutUser() {
+      if (confirm('Yakin ingin logout?')) {
+        currentUser = null;
+        localStorage.removeItem('lummxd_current_user');
+        updateUserUI();
+        renderRequests();
+      }
+    }
+
+    document.getElementById('authUsername').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') document.getElementById('authPassword').focus();
+    });
+    document.getElementById('authPassword').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') handleAuth();
+    });
+
+    // ========== DATA PROFIL ==========
+    const DEFAULT_PROFILE = {
+      name: "LummXD Store",
+      desc: "🧠 Brainrot Store · Request Brainrot",
+      avatar: null,
+      isOnline: true
+    };
+
+    function loadProfile() {
+      const saved = localStorage.getItem('lummxd_profile');
+      if (saved) {
+        try { return JSON.parse(saved); } catch (e) { return JSON.parse(JSON.stringify(DEFAULT_PROFILE)); }
+      }
+      return JSON.parse(JSON.stringify(DEFAULT_PROFILE));
+    }
+
+    function saveProfileData() {
+      localStorage.setItem('lummxd_profile', JSON.stringify(profile));
+    }
+
+    let profile = loadProfile();
+
+    // ========== DATA PRODUK ==========
+    const DEFAULT_PRODUCTS = [
+      { name: "Cahaya Surgawi", rarity: "Surgawi", price: "Rp500.000", stock: 3, image: null },
+      { name: "Pedang Abadi", rarity: "Abadi", price: "Rp750.000", stock: 2, image: null },
+      { name: "Kegelapan Abyssal", rarity: "Abyssal", price: "Rp1.000.000", stock: 1, image: null },
+      { name: "Mahkota Surgawi", rarity: "Surgawi", price: "Rp600.000", stock: 2, image: null },
+      { name: "Permata Abadi", rarity: "Abadi", price: "Rp850.000", stock: 1, image: null },
+      { name: "Roh Abyssal", rarity: "Abyssal", price: "Rp1.200.000", stock: 1, image: null }
+    ];
+
+    function loadProducts() {
+      const saved = localStorage.getItem('lummxd_products');
+      if (saved) {
+        try { 
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          return JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+        } catch (e) { return JSON.parse(JSON.stringify(DEFAULT_PRODUCTS)); }
+      }
+      return JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+    }
+
+    function saveProducts() {
+      localStorage.setItem('lummxd_products', JSON.stringify(products));
+    }
+
+    let products = loadProducts();
+
+    // ========== DATA REQUEST ==========
+    let requests = [];
+    let editingIndex = -1;
+    let buyIndex = -1;
+    let isOwnerUnlocked = false;
+    let uploadedImageData = null;
+    let profileAvatarData = null;
+    let isDarkMode = localStorage.getItem('lummxd_theme') === 'dark';
+    let isOnline = profile.isOnline !== undefined ? profile.isOnline : true;
+    let currentFilter = "Semua";
+
+    function loadRequests() {
+      const saved = localStorage.getItem('lummxd_requests');
+      if (saved) {
+        try { requests = JSON.parse(saved); } catch (e) { requests = []; }
+      }
+    }
+
+    function saveRequests() {
+      localStorage.setItem('lummxd_requests', JSON.stringify(requests));
+    }
+
+    // ========== UPDATE UI PROFIL ==========
+    function updateProfileUI() {
+      const avatarEl = document.getElementById('avatarDisplay');
+      const nameEl = document.getElementById('storeNameDisplay');
+      const descEl = document.getElementById('storeDescDisplay');
+      const statusEl = document.getElementById('statusDisplay');
+
+      nameEl.textContent = profile.name || "LummXD Store";
+      descEl.textContent = profile.desc || "🧠 Brainrot Store · Request Brainrot";
+
+      if (profile.avatar) {
+        avatarEl.innerHTML = `<img src="${profile.avatar}" alt="avatar">`;
+      } else {
+        const initial = (profile.name || "LX").charAt(0).toUpperCase();
+        avatarEl.innerHTML = initial;
+        avatarEl.style.background = 'linear-gradient(135deg, var(--btn-primary), #7c3aed)';
+      }
+
+      isOnline = profile.isOnline !== undefined ? profile.isOnline : true;
+      if (isOnline) {
+        statusEl.className = 'online-status online';
+        statusEl.innerHTML = '<i class="fas fa-circle"></i> Online';
+      } else {
+        statusEl.className = 'online-status offline';
+        statusEl.innerHTML = '<i class="fas fa-circle"></i> Offline';
+      }
+    }
+
+    // ========== TAP LOGO 5x ==========
+    let tapCount = 0;
+    let tapTimeout = null;
+    const logoTrigger = document.getElementById('logoTrigger');
+    const tapIndicator = document.getElementById('tapIndicator');
+
+    logoTrigger.addEventListener('click', function(e) {
+      e.stopPropagation();
+      
+      tapCount++;
+      tapIndicator.textContent = tapCount;
+      tapIndicator.classList.add('show');
+      
+      clearTimeout(tapTimeout);
+      tapTimeout = setTimeout(() => {
+        tapCount = 0;
+        tapIndicator.textContent = '0';
+        tapIndicator.classList.remove('show');
+      }, 2000);
+      
+      if (tapCount >= 5) {
+        tapCount = 0;
+        tapIndicator.textContent = '0';
+        tapIndicator.classList.remove('show');
+        clearTimeout(tapTimeout);
+        
+        document.getElementById('passwordModal').style.display = 'flex';
+        document.getElementById('ownerPassInput').value = '';
+        document.getElementById('passStatus').innerHTML = '<i class="fas fa-circle"></i> Masukkan password';
+        document.getElementById('passStatus').className = 'pass-status';
+        document.getElementById('ownerPassInput').focus();
+      }
+    });
+
+    // ========== THEME ==========
+    function toggleTheme() {
+      isDarkMode = !isDarkMode;
+      document.body.classList.toggle('dark', isDarkMode);
+      localStorage.setItem('lummxd_theme', isDarkMode ? 'dark' : 'light');
+      document.getElementById('themeIcon').className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    if (isDarkMode) {
+      document.body.classList.add('dark');
+      document.getElementById('themeIcon').className = 'fas fa-sun';
+    }
+
+    // ========== RENDER ==========
+    function render() {
+      const container = document.getElementById("products");
+      const search = document.getElementById("search").value.toLowerCase();
+      container.innerHTML = "";
+
+      const filtered = products.filter(p => {
+        const searchMatch = p.name.toLowerCase().includes(search);
+        const rarityMatch = currentFilter === "Semua" || p.rarity === currentFilter;
+        return searchMatch && rarityMatch;
+      });
+
+      document.getElementById("total").textContent = filtered.length + " produk";
+      document.getElementById("empty").style.display = filtered.length === 0 ? "block" : "none";
+
+      filtered.forEach((p, idx) => {
+        const realIndex = products.indexOf(p);
+        const card = document.createElement("div");
+        card.className = "card";
+
+        let imgHtml = '';
+        if (p.image) {
+          imgHtml = `<img src="${p.image}" alt="${p.name}">`;
+        } else {
+          imgHtml = `<span class="no-image">Tidak ada gambar</span>`;
+        }
+
+        const stockLabel = p.stock > 0 ? `● ${p.stock} stok tersedia` : '⛔ Stok habis';
+        const buyDisabled = p.stock <= 0 ? 'disabled' : '';
+
+        card.innerHTML = `
+          <div class="product-img" onclick="handleProductClick(${realIndex})">
+            ${imgHtml}
+          </div>
+          <div class="info">
+            <div class="name">${p.name}</div>
+            <span class="badge">${p.rarity}</span>
+            <div class="price">${p.price}</div>
+            <div class="stock">${stockLabel}</div>
+            <button class="buy-btn" ${buyDisabled} onclick="openBuyModal(${realIndex})">
+              ${p.stock > 0 ? '🛒 Beli' : '⛔ Habis'}
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+      
+      renderRequests();
+    }
+
+    function handleProductClick(index) {
+      if (!isOwnerUnlocked) return;
+      openEditModal(index);
+    }
+
+    function filter(type, button) {
+      currentFilter = type;
+      document.querySelectorAll(".filter button").forEach(b => b.classList.remove("active"));
+      button.classList.add("active");
+      render();
+    }
+
+    document.getElementById("search").addEventListener("input", render);
+
+    // ========== RENDER REQUESTS ==========
+    function renderRequests() {
+      const container = document.getElementById('requestList');
+      const countEl = document.getElementById('requestCount');
+      
+      let visibleRequests = [];
+      
+      if (isOwnerUnlocked) {
+        visibleRequests = requests;
+      } else if (currentUser) {
+        visibleRequests = requests.filter(r => r.user === currentUser);
+      } else {
+        visibleRequests = [];
+      }
+      
+      countEl.textContent = `(${visibleRequests.length})`;
+      
+      if (visibleRequests.length === 0) {
+        if (isOwnerUnlocked) {
+          container.innerHTML = `<div class="no-requests">Belum ada request dari user</div>`;
+        } else if (currentUser) {
+          container.innerHTML = `<div class="no-requests">Kamu belum request Brainrot</div>`;
+        } else {
+          container.innerHTML = `<div class="no-requests">🔒 Login untuk melihat requestmu</div>`;
+        }
+        return;
+      }
+      
+      container.innerHTML = '';
+      
+      visibleRequests.forEach((req, idx) => {
+        const realIndex = requests.indexOf(req);
+        const div = document.createElement('div');
+        div.className = 'request-item';
+        
+        let statusClass = 'pending';
+        let statusText = '⏳ Menunggu';
+        
+        if (req.status === 'accepted') {
+          statusClass = 'accepted';
+          statusText = '✅ Diterima';
+        } else if (req.status === 'rejected') {
+          statusClass = 'rejected';
+          statusText = '❌ Ditolak';
+        }
+        
+        const hasReply = req.reply && req.reply.trim() !== '';
+        
+        let adminActions = '';
+        if (isOwnerUnlocked && req.status === 'pending') {
+          adminActions = `
+            <button class="btn-accept" onclick="handleRequest(${realIndex}, 'accepted')"><i class="fas fa-check"></i> Terima</button>
+            <button class="btn-reject" onclick="handleRequest(${realIndex}, 'rejected')"><i class="fas fa-times"></i> Tolak</button>
+          `;
+        }
+        
+        let deleteBtn = '';
+        if (isOwnerUnlocked || (currentUser && req.user === currentUser)) {
+          deleteBtn = `<button class="btn-delete-req" onclick="deleteRequest(${realIndex})"><i class="fas fa-trash"></i></button>`;
+        }
+        
+        let replyBtn = '';
+        if (hasReply && (isOwnerUnlocked || (currentUser && req.user === currentUser))) {
+          replyBtn = `<button class="btn-accept" style="background:var(--btn-primary);color:#fff;" onclick="viewReply(${realIndex})"><i class="fas fa-reply"></i> Lihat Balasan</button>`;
+        }
+        
+        const userDisplay = isOwnerUnlocked ? `<span class="req-user">👤 ${req.user}</span>` : '';
+        
+        div.innerHTML = `
+          <div class="request-info">
+            <span class="req-name">🧠 ${req.brainrot}</span>
+            ${userDisplay}
+            <span class="req-rarity">${req.rarity || 'Surgawi'}</span>
+            <span class="req-status ${statusClass}">${statusText}</span>
+            ${hasReply ? `<span class="req-reply">💬 Ada balasan</span>` : ''}
+          </div>
+          <div class="request-actions">
+            ${replyBtn}
+            ${adminActions}
+            ${deleteBtn}
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // ========== REQUEST FUNCTIONS ==========
+    function openRequestModal() {
+      if (!currentUser) {
+        alert('Login dulu untuk request Brainrot!');
+        return;
+      }
+      document.getElementById('reqBrainrotInput').value = '';
+      document.getElementById('reqRarityInput').value = '';
+      document.getElementById('reqStatus').innerHTML = '<i class="fas fa-circle"></i> Isi data di atas';
+      document.getElementById('reqStatus').className = 'auth-status';
+      document.getElementById('requestModal').style.display = 'flex';
+      document.getElementById('reqBrainrotInput').focus();
+    }
+
+    function closeRequestModal() {
+      document.getElementById('requestModal').style.display = 'none';
+    }
+
+    function submitRequest() {
+      const brainrot = document.getElementById('reqBrainrotInput').value.trim();
+      const rarity = document.getElementById('reqRarityInput').value.trim();
+      const statusEl = document.getElementById('reqStatus');
+      
+      if (!brainrot) {
+        statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Nama Brainrot tidak boleh kosong!';
+        statusEl.className = 'auth-status error';
+        return;
+      }
+      
+      if (!rarity) {
+        statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Mutasi (Rarity) tidak boleh kosong!';
+        statusEl.className = 'auth-status error';
+        return;
+      }
+      
+      requests.push({
+        user: currentUser,
+        brainrot: brainrot,
+        rarity: rarity,
+        status: 'pending',
+        reply: '',
+        createdAt: new Date().toISOString()
+      });
+      
+      saveRequests();
+      closeRequestModal();
+      renderRequests();
+      alert('✅ Request Brainrot berhasil dikirim! Admin akan membalasnya.');
+    }
+
+    function handleRequest(index, status) {
+      if (!isOwnerUnlocked) {
+        alert('Buka panel owner dulu!');
+        return;
+      }
+      
+      const req = requests[index];
+      if (!req) return;
+      
+      const action = status === 'accepted' ? 'menerima' : 'menolak';
+      const replyMsg = prompt(`Masukkan balasan untuk "${req.brainrot}" (${action}):`);
+      if (replyMsg === null) return;
+      
+      req.status = status;
+      req.reply = replyMsg || (status === 'accepted' ? '✅ Request diterima! Brainrot akan segera ditambahkan.' : '❌ Request ditolak. Mohon coba lagi.');
+      
+      saveRequests();
+      renderRequests();
+      alert(`✅ Request ${action}! Balasan sudah dikirim ke user.`);
+    }
+
+    function viewReply(index) {
+      const req = requests[index];
+      if (!req) return;
+      
+      if (!isOwnerUnlocked && (!currentUser || req.user !== currentUser)) {
+        alert('Anda tidak memiliki akses ke balasan ini.');
+        return;
+      }
+      
+      const statusEl = document.getElementById('replyStatus');
+      const msgEl = document.getElementById('replyMessage');
+      
+      if (req.status === 'accepted') {
+        statusEl.textContent = '✅ Diterima';
+        statusEl.className = 'reply-status accepted';
+      } else if (req.status === 'rejected') {
+        statusEl.textContent = '❌ Ditolak';
+        statusEl.className = 'reply-status rejected';
+      } else {
+        statusEl.textContent = '⏳ Menunggu';
+        statusEl.className = 'reply-status';
+      }
+      
+      msgEl.textContent = req.reply || 'Belum ada balasan dari admin.';
+      
+      document.getElementById('replyModal').style.display = 'flex';
+    }
+
+    function closeReplyModal() {
+      document.getElementById('replyModal').style.display = 'none';
+    }
+
+    function deleteRequest(index) {
+      const req = requests[index];
+      if (!req) return;
+      
+      if (!isOwnerUnlocked && (!currentUser || req.user !== currentUser)) {
+        alert('Anda tidak memiliki akses untuk menghapus request ini.');
+        return;
+      }
+      
+      if (!confirm(`Hapus request "${req.brainrot}"?`)) return;
+      
+      requests.splice(index, 1);
+      saveRequests();
+      renderRequests();
+    }
+
+    // ========== PASSWORD MODAL ==========
+    function closePasswordModal() {
+      document.getElementById('passwordModal').style.display = 'none';
+      document.getElementById('ownerPassInput').value = '';
+    }
+
+    function unlockOwner() {
+      const pass = document.getElementById('ownerPassInput').value.trim();
+      const statusEl = document.getElementById('passStatus');
+      
+      if (pass === OWNER_PASSWORD) {
+        isOwnerUnlocked = true;
+        statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Berhasil!';
+        statusEl.className = 'pass-status success';
+        document.getElementById('ownerPassInput').value = '';
+        document.getElementById('adminMusicBtn').style.display = 'block';
+        setTimeout(() => {
+          closePasswordModal();
+          render();
+        }, 600);
+      } else {
+        statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Password salah!';
+        statusEl.className = 'pass-status error';
+        document.getElementById('ownerPassInput').value = '';
+        document.getElementById('ownerPassInput').focus();
+        setTimeout(() => {
+          statusEl.innerHTML = '<i class="fas fa-circle"></i> Masukkan password';
+          statusEl.className = 'pass-status';
+        }, 2000);
+      }
+    }
+
+    document.getElementById('ownerPassInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') unlockOwner();
+    });
+
+    // ========== MODAL PROFIL ==========
+    function openProfileModal() {
+      if (!isOwnerUnlocked) return;
+      
+      document.getElementById('profileNameInput').value = profile.name || "LummXD Store";
+      document.getElementById('profileDescInput').value = profile.desc || "🧠 Brainrot Store · Request Brainrot";
+      
+      const preview = document.getElementById('profileAvatarPreview');
+      if (profile.avatar) {
+        preview.innerHTML = `<img src="${profile.avatar}" alt="avatar">`;
+      } else {
+        const initial = (profile.name || "LX").charAt(0).toUpperCase();
+        preview.innerHTML = `<span style="font-size:35px;font-weight:700;color:#fff;">${initial}</span>`;
+        preview.style.background = 'linear-gradient(135deg, var(--btn-primary), #7c3aed)';
+      }
+      
+      const isOnline = profile.isOnline !== undefined ? profile.isOnline : true;
+      const switchEl = document.getElementById('statusSwitch');
+      const labelEl = document.getElementById('statusLabel');
+      if (isOnline) {
+        switchEl.classList.add('active');
+        labelEl.textContent = 'Online';
+      } else {
+        switchEl.classList.remove('active');
+        labelEl.textContent = 'Offline';
+      }
+      
+      profileAvatarData = null;
+      document.getElementById('profileAvatarInput').value = '';
+      document.getElementById('profileModal').style.display = 'flex';
+    }
+
+    function closeProfileModal() {
+      document.getElementById('profileModal').style.display = 'none';
+      profileAvatarData = null;
+    }
+
+    function toggleStatusSwitch() {
+      const switchEl = document.getElementById('statusSwitch');
+      const labelEl = document.getElementById('statusLabel');
+      switchEl.classList.toggle('active');
+      if (switchEl.classList.contains('active')) {
+        labelEl.textContent = 'Online';
+      } else {
+        labelEl.textContent = 'Offline';
+      }
+    }
+
+    document.getElementById('profileAvatarInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        profileAvatarData = ev.target.result;
+        const preview = document.getElementById('profileAvatarPreview');
+        preview.innerHTML = `<img src="${profileAvatarData}" alt="avatar">`;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function saveProfile() {
+      if (!isOwnerUnlocked) return;
+      
+      const newName = document.getElementById('profileNameInput').value.trim() || "LummXD Store";
+      const newDesc = document.getElementById('profileDescInput').value.trim() || "🧠 Brainrot Store · Request Brainrot";
+      const isOnline = document.getElementById('statusSwitch').classList.contains('active');
+      
+      profile.name = newName;
+      profile.desc = newDesc;
+      profile.isOnline = isOnline;
+      
+      if (profileAvatarData) {
+        profile.avatar = profileAvatarData;
+      }
+      
+      saveProfileData();
+      updateProfileUI();
+      closeProfileModal();
+      render();
+    }
+
+    // ========== LOGOUT ==========
+    function openLogoutModal() {
+      if (!isOwnerUnlocked) return;
+      document.getElementById('logoutModal').style.display = 'flex';
+    }
+
+    function closeLogoutModal() {
+      document.getElementById('logoutModal').style.display = 'none';
+    }
+
+    function confirmLogout() {
+      isOwnerUnlocked = false;
+      document.getElementById('adminMusicBtn').style.display = 'none';
+      closeLogoutModal();
+      closeProfileModal();
+      closeEditModal();
+      render();
+      tapCount = 0;
+      tapIndicator.textContent = '0';
+      tapIndicator.classList.remove('show');
+    }
+
+    // ========== EDIT MODAL ==========
+    function openEditModal(index) {
+      if (!isOwnerUnlocked) return;
+      editingIndex = index;
+      const p = products[index];
+      if (!p) return;
+
+      document.getElementById("editNameDisplay").textContent = p.name;
+      document.getElementById("editRarityDisplay").textContent = p.rarity;
+      document.getElementById("editPriceDisplay").textContent = p.price;
+      document.getElementById("editStockDisplay").textContent = "● " + p.stock + " stok";
+
+      document.getElementById("editNameInput").value = p.name;
+      document.getElementById("editRaritySelect").value = p.rarity;
+      document.getElementById("editPriceInput").value = p.price;
+      document.getElementById("editStockInput").value = p.stock;
+
+      const container = document.getElementById("editImgContainer");
+      if (p.image) {
+        container.innerHTML = `<img src="${p.image}" alt="${p.name}">`;
+      } else {
+        container.innerHTML = `<span class="no-image">Tidak ada gambar</span>`;
+      }
+
+      uploadedImageData = null;
+      document.getElementById("editFileInput").value = '';
+      document.getElementById("editModal").style.display = "flex";
+    }
+
+    function closeEditModal() {
+      document.getElementById("editModal").style.display = "none";
+      editingIndex = -1;
+      uploadedImageData = null;
+    }
+
+    document.getElementById("editFileInput").addEventListener("change", function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        uploadedImageData = ev.target.result;
+        const container = document.getElementById("editImgContainer");
+        container.innerHTML = `<img src="${uploadedImageData}" alt="preview">`;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function addNewProduct() {
+      if (!isOwnerUnlocked) return;
+      
+      const newProduct = {
+        name: "Produk Baru",
+        rarity: "Surgawi",
+        price: "Rp100.000",
+        stock: 1,
+        image: null
+      };
+      
+      products.push(newProduct);
+      saveProducts();
+      render();
+      
+      const newIndex = products.length - 1;
+      openEditModal(newIndex);
+    }
+
+    function saveProductEdit() {
+      if (editingIndex < 0 || !isOwnerUnlocked) return;
+      
+      const p = products[editingIndex];
+      if (!p) return;
+
+      const newName = document.getElementById("editNameInput").value.trim();
+      const newRarity = document.getElementById("editRaritySelect").value;
+      const newPrice = document.getElementById("editPriceInput").value.trim();
+      const newStock = parseInt(document.getElementById("editStockInput").value) || 0;
+
+      if (!newName || !newPrice) return;
+
+      p.name = newName;
+      p.rarity = newRarity;
+      p.price = newPrice;
+      p.stock = newStock;
+
+      if (uploadedImageData) {
+        p.image = uploadedImageData;
+      }
+
+      saveProducts();
+      closeEditModal();
+      render();
+    }
+
+    function deleteProduct() {
+      if (editingIndex < 0 || !isOwnerUnlocked) return;
+      if (!confirm("Hapus produk ini?")) return;
+      products.splice(editingIndex, 1);
+      saveProducts();
+      closeEditModal();
+      render();
+    }
+
+    // ========== BUY MODAL ==========
+    function openBuyModal(index) {
+      const p = products[index];
+      if (!p) return;
+      if (p.stock <= 0) return;
+      
+      buyIndex = index;
+      document.getElementById("buyName").textContent = p.name;
+      document.getElementById("buyRarity").textContent = p.rarity;
+      document.getElementById("buyPrice").textContent = p.price;
+      document.getElementById("buyStock").textContent = "● " + p.stock + " stok tersedia";
+
+      const container = document.getElementById("buyImgContainer");
+      if (p.image) {
+        container.innerHTML = `<img src="${p.image}" alt="${p.name}">`;
+      } else {
+        container.innerHTML = `<span class="no-image">Tidak ada gambar</span>`;
+      }
+
+      document.getElementById("buyerRobloxInput").value = '';
+      document.getElementById("buyerPhoneInput").value = '';
+      document.getElementById("buyModal").style.display = "flex";
+      document.getElementById("buyerRobloxInput").focus();
+    }
+
+    function closeBuyModal() {
+      document.getElementById("buyModal").style.display = "none";
+      buyIndex = -1;
+    }
+
+    function openConfirmModal() {
+      const roblox = document.getElementById("buyerRobloxInput").value.trim();
+      const phone = document.getElementById("buyerPhoneInput").value.trim();
+
+      if (!roblox) {
+        alert("✏️ Silakan isi username Roblox Anda dulu ya!");
+        document.getElementById("buyerRobloxInput").focus();
+        return;
+      }
+      if (!phone) {
+        alert("📱 Nomor WhatsApp-nya diisi dulu ya!");
+        document.getElementById("buyerPhoneInput").focus();
+        return;
+      }
+      if (phone.length < 10 || !phone.match(/^[0-9]+$/)) {
+        alert("📱 Nomor WhatsApp tidak valid!\n\nPastikan formatnya benar, contoh: 6281234567890\n(Hanya angka, minimal 10 digit)");
+        document.getElementById("buyerPhoneInput").focus();
+        return;
+      }
+
+      const p = products[buyIndex];
+      document.getElementById("confirmRoblox").textContent = roblox;
+      document.getElementById("confirmPhone").textContent = phone;
+      document.getElementById("confirmProduct").textContent = p.name;
+      document.getElementById("confirmRarity").textContent = p.rarity;
+      document.getElementById("confirmPrice").textContent = p.price;
+
+      document.getElementById("confirmModal").style.display = "flex";
+    }
+
+    function closeConfirmModal() {
+      document.getElementById("confirmModal").style.display = "none";
+    }
+
+    function processOrder() {
+      if (buyIndex < 0) return;
+      const p = products[buyIndex];
+      if (!p || p.stock <= 0) return;
+
+      const roblox = document.getElementById("confirmRoblox").textContent;
+      const phone = document.getElementById("confirmPhone").textContent;
+
+      if (!phone || phone.length < 10 || !phone.match(/^[0-9]+$/)) {
+        alert("📱 Nomor WhatsApp tidak valid!");
+        return;
+      }
+
+      p.stock -= 1;
+      saveProducts();
+      render();
+
+      const storePhone = STORE_PHONE;
+      const text = `Halo LummXD Store 👋%0A%0AAda pesanan baru!%0A%0A` +
+                   `🎮 Username Roblox: ${roblox}%0A` +
+                   `📱 No. WhatsApp: ${phone}%0A` +
+                   `📦 Produk: ${p.name}%0A` +
+                   `🏷️ Rarity: ${p.rarity}%0A` +
+                   `💰 Harga: ${p.price}%0A` +
+                   `📊 Stok tersisa: ${p.stock}%0A%0A` +
+                   `Mohon segera diproses. Terima kasih! 🙏`;
+
+      window.open("https://wa.me/" + storePhone + "?text=" + text, "_blank");
+      closeConfirmModal();
+      closeBuyModal();
+    }
+
+    document.getElementById("buyerRobloxInput").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+        document.getElementById("buyerPhoneInput").focus();
+      }
+    });
+    document.getElementById("buyerPhoneInput").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+        openConfirmModal();
+      }
+    });
+
+    // ========== MUSIC MODAL ==========
+    function openMusicModal() {
+      if (!isOwnerUnlocked) {
+        alert('🔑 Buka panel owner dulu (ketuk logo 5x, password: admin112)');
+        return;
+      }
+      
+      renderMusicList();
+      document.getElementById('musicModal').style.display = 'flex';
+    }
+
+    function closeMusicModal() {
+      document.getElementById('musicModal').style.display = 'none';
+      document.getElementById('musicFileInput').value = '';
+    }
+
+    function renderMusicList() {
+      const container = document.getElementById('musicList');
+      container.innerHTML = '';
+      
+      if (musicList.length === 0) {
+        container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;">Belum ada musik. Upload lagu!</div>';
+        return;
+      }
+      
+      musicList.forEach((track, index) => {
+        const div = document.createElement('div');
+        div.className = 'music-item';
+        div.innerHTML = `
+          <span class="music-name">${track.name || 'Untitled'}</span>
+          <div class="music-actions">
+            <button class="play-btn" onclick="playMusicFromList(${index})" title="Putar"><i class="fas fa-play"></i></button>
+            <button onclick="deleteMusicFromList(${index})" title="Hapus"><i class="fas fa-trash"></i></button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function playMusicFromList(index) {
+      // Saat play dari list, set hasStarted = true
+      if (!hasStarted) {
+        hasStarted = true;
+      }
+      loadTrack(index);
+      if (!isPlaying) {
+        togglePlay();
+      }
+      closeMusicModal();
+    }
+
+    function deleteMusicFromList(index) {
+      if (!confirm(`Hapus "${musicList[index].name || 'Untitled'}"?`)) return;
+      musicList.splice(index, 1);
+      saveMusic();
+      renderMusicList();
+      if (musicList.length === 0) {
+        document.getElementById('currentSongName').innerHTML = '<strong>🎵</strong> Tidak ada musik';
+        document.getElementById('playBtn').disabled = true;
+        document.getElementById('prevBtn').disabled = true;
+        document.getElementById('nextBtn').disabled = true;
+        document.getElementById('progressBar').disabled = true;
+        audio.src = '';
+        musicReady = false;
+      }
+    }
+
+    document.getElementById('musicFileInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) {
+        alert('Pilih file dulu!');
+        return;
+      }
+      
+      if (!file.type.startsWith('audio/')) {
+        alert('❌ Hanya file audio yang diizinkan! (MP3, WAV, dll)');
+        this.value = '';
+        return;
+      }
+      
+      if (file.size > 50 * 1024 * 1024) {
+        alert('❌ File terlalu besar! Maksimal 50MB.');
+        this.value = '';
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        try {
+          const audioData = ev.target.result;
+          const name = file.name.replace(/\.[^/.]+$/, '');
+          
+          const testAudio = new Audio();
+          testAudio.src = audioData;
+          testAudio.load();
+          
+          testAudio.addEventListener('loadedmetadata', function() {
+            musicList.push({
+              name: name,
+              data: audioData
+            });
+            saveMusic();
+            renderMusicList();
+            document.getElementById('musicFileInput').value = '';
+            alert(`✅ "${name}" berhasil diupload! (${Math.round(file.size/1024)} KB)`);
+            
+            if (!audio.src || !musicReady) {
+              loadTrack(musicList.length - 1);
+            }
+          });
+          
+          testAudio.addEventListener('error', function() {
+            alert('❌ File audio rusak atau tidak didukung!');
+            document.getElementById('musicFileInput').value = '';
+          });
+          
+        } catch (err) {
+          alert('❌ Gagal membaca file: ' + err.message);
+          document.getElementById('musicFileInput').value = '';
+        }
+      };
+      
+      reader.onerror = function() {
+        alert('❌ Gagal membaca file!');
+        document.getElementById('musicFileInput').value = '';
+      };
+      
+      reader.readAsDataURL(file);
+    });
+
+    function saveMusicList() {
+      saveMusic();
+      renderMusicList();
+      alert('✅ Daftar musik berhasil disimpan!');
+    }
+
+    // ========== CLOSE MODAL OUTSIDE ==========
+    document.getElementById("editModal").addEventListener("click", function(e) {
+      if (e.target === this) closeEditModal();
+    });
+    document.getElementById("buyModal").addEventListener("click", function(e) {
+      if (e.target === this) closeBuyModal();
+    });
+    document.getElementById("passwordModal").addEventListener("click", function(e) {
+      if (e.target === this) closePasswordModal();
+    });
+    document.getElementById("profileModal").addEventListener("click", function(e) {
+      if (e.target === this) closeProfileModal();
+    });
+    document.getElementById("confirmModal").addEventListener("click", function(e) {
+      if (e.target === this) closeConfirmModal();
+    });
+    document.getElementById("logoutModal").addEventListener("click", function(e) {
+      if (e.target === this) closeLogoutModal();
+    });
+    document.getElementById("musicModal").addEventListener("click", function(e) {
+      if (e.target === this) closeMusicModal();
+    });
+    document.getElementById("authModal").addEventListener("click", function(e) {
+      if (e.target === this) closeAuthModal();
+    });
+    document.getElementById("requestModal").addEventListener("click", function(e) {
+      if (e.target === this) closeRequestModal();
+    });
+    document.getElementById("replyModal").addEventListener("click", function(e) {
+      if (e.target === this) closeReplyModal();
+    });
+
+    // ========== INIT ==========
+    const savedUser = localStorage.getItem('lummxd_current_user');
+    if (savedUser) {
+      currentUser = savedUser;
+    }
+    updateUserUI();
+    
+    // Inisialisasi Battery
+    updateBattery();
+    
+    loadMusic();
+    loadRequests();
+    updateProfileUI();
+    render();
+    
+    // Tampilkan login jika belum login
+    if (!currentUser) {
+      setTimeout(() => {
+        openAuthModal('login');
+      }, 500);
+    }
+    
+    console.log("🎵 Musik siap diputar! Klik play sekali untuk mulai.");
+    console.log("🔑 Owner password: admin112 (ketuk logo 5x)");
+    console.log("📱 Nomor toko: 6282233308414");
+    console.log("🔋 Indikator baterai aktif!");
+  </script>
+
+</body>
+</html>
