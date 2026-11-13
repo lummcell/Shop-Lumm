@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quote Machine</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+        :root {
+            --bg-main: #f4f0e6;
+            --text-main: #111111;
+            --accent: #ff4a00;
+            --border: #111111;
+            --shadow: 4px 4px 0px #111111;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            background-image: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 19px,
+                rgba(0,0,0,0.05) 20px
+            );
+            font-family: 'Space Mono', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-main);
+            padding: 20px;
+            position: relative; 
+        }
+
+        /* =================================
+           LOGO WA POJOK KANAN BAWAH
+           ================================= */
+        .floating-wa {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--border);
+            color: #fff;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%; 
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+            z-index: 999;
+            transition: all 0.2s ease;
+        }
+
+        .floating-wa:hover {
+            background-color: var(--accent);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 2px 5px 10px rgba(0,0,0,0.3);
+        }
+
+        .floating-wa svg {
+            width: 22px;
+            height: 22px;
+            fill: currentColor;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 420px;
+            background-color: #ffffff;
+            border: 3px solid var(--border);
+            border-radius: 0;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            position: relative;
+            z-index: 2;
+        }
+
+        .header {
+            border-bottom: 3px solid var(--border);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+
+        .header p {
+            font-size: 10px;
+            font-weight: 700;
+            background-color: var(--accent);
+            color: #fff;
+            padding: 4px 8px;
+            text-transform: uppercase;
+        }
+
+        .form-area {
+            display: flex;
+            flex-direction: column;
+            gap: 16px; 
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .input-group textarea,
+        .input-group input {
+            width: 100%;
+            background-color: var(--bg-main);
+            border: 2px solid var(--border);
+            color: var(--text-main);
+            padding: 12px;
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            transition: all 0.1s;
+        }
+
+        .input-group textarea:focus,
+        .input-group input:focus {
+            background-color: #fff;
+            box-shadow: 3px 3px 0px var(--border);
+            transform: translate(-2px, -2px);
+        }
+
+        .btn-action {
+            background-color: var(--accent);
+            color: #ffffff;
+            border: 3px solid var(--border);
+            width: 100%;
+            padding: 16px;
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.1s;
+            margin-top: 10px;
+        }
+
+        .btn-action:active {
+            box-shadow: 0px 0px 0px var(--border);
+            transform: translate(4px, 4px);
+        }
+
+        .result-container {
+            display: none;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            border-bottom: 2px dashed var(--border);
+            padding-bottom: 8px;
+        }
+
+        .result-header h3 {
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        /* KERTAS */
+        .paper-canvas {
+            width: 100%;
+            aspect-ratio: 4 / 5;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            padding: 40px 10%;
+            margin-bottom: 24px;
+
+            background-color: #c0b7aa;
+            background-image: url('https://images.unsplash.com/photo-1586075010923-2dd4570fb338?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: multiply;
+
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.15); 
+            overflow: hidden;
+            border: 1px solid #a89f92;
+        }
+
+        .text-wrapper {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center; 
+            align-items: center;
+            width: 100%;
+            max-width: 100%;
+
+            font-family: 'Lora', serif; 
+            color: #1a1a1a;
+            font-size: 20px; 
+            line-height: 1.9; 
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .word {
+            position: relative;
+            display: inline-block;
+            margin: 0 4px; 
+            z-index: 2;
+        }
+
+        .highlight-box {
+            position: absolute;
+            background-color: rgba(240, 240, 240, 0.85); 
+            z-index: -1;
+            pointer-events: none;
+            
+            top: 10%; 
+            bottom: 10%;
+            left: -2px; 
+            right: -2px; 
+        }
+
+        .author-text {
+            position: absolute;
+            bottom: 35px; 
+            z-index: 1;
+            font-family: 'Lora', serif;
+            color: #2a2a2a;
+            font-size: 12px;
+        }
+
+        .action-area {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn-secondary {
+            background-color: #ffffff;
+            color: var(--text-main);
+            border: 3px solid var(--border);
+            width: 100%;
+            padding: 14px;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.1s;
+        }
+
+        .btn-secondary:active {
+            box-shadow: 0px 0px 0px var(--border);
+            transform: translate(4px, 4px);
+        }
+
+        .credit-text {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .credit-text span {
+            background-color: var(--border);
+            color: #fff;
+            padding: 2px 6px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- LOGO WA POJOK KANAN BAWAH -->
+    <a href="https://whatsapp.com/channel/0029Vb8UPJqDzgTEfcxodd1v" class="floating-wa" target="_blank" rel="noopener noreferrer" title="Join Saluran WhatsApp">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+    </a>
+
+    <div class="app-container">
+
+        <!-- HEADER -->
+        <div class="header">
+            <div>
+                <h2>Quote<br>Machine</h2>
+            </div>
+            <p>V.01</p>
+        </div>
+
+        <!-- FORM -->
+        <div class="form-area" id="formArea">
+
+            <div class="input-group">
+                <label>Isi Teks</label>
+                <textarea id="inputQuote" rows="3" placeholder="Ketik di sini...">Hidup itu hanya satu kali jadi berusahalah menjadi orang yang baik .</textarea>
+            </div>
+
+            <div class="input-group">
+                <label>Nama Author</label>
+                <input type="text" id="inputAuthor" placeholder="Anonim" value="Someone">
+            </div>
+
+            <button class="btn-action" id="generateBtn">
+                Generate Now &rarr;
+            </button>
+
+            <!-- DEV BY DI FORM -->
+            <div class="credit-text">
+                DEV BY <span>LummXD</span>
+            </div>
+        </div>
+
+        <!-- HASIL -->
+        <div class="result-container" id="resultContainer">
+
+            <div class="result-header">
+                <h3>[ Output Gambar ]</h3>
+                <span style="font-size: 12px; color: var(--accent); font-weight: bold;">100% HD</span>
+            </div>
+
+            <!-- PAPER -->
+            <div class="paper-canvas" id="paperCanvas">
+                <div class="text-wrapper" id="quoteDisplay"></div>
+                <div class="author-text" id="authorDisplay">Someone</div>
+            </div>
+
+            <!-- BUTTONS -->
+            <div class="action-area">
+                <button class="btn-action" id="downloadBtn">
+                    Download PNG &darr;
+                </button>
+                <button class="btn-secondary" id="resetBtn">
+                    &larr; Kembali
+                </button>
+            </div>
+
+            <!-- DEV BY DI HASIL (SUDAH DITAMBAHIN) -->
+            <div class="credit-text">
+                DEV BY <span>LummXD</span>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- HTML2CANVAS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
+        const formArea = document.getElementById('formArea');
+        const resultContainer = document.getElementById('resultContainer');
+
+        const generateBtn = document.getElementById('generateBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        const inputQuote = document.getElementById('inputQuote');
+        const inputAuthor = document.getElementById('inputAuthor');
+
+        const quoteDisplay = document.getElementById('quoteDisplay');
+        const authorDisplay = document.getElementById('authorDisplay');
+        const paperCanvas = document.getElementById('paperCanvas');
+
+        function renderQuoteWithHighlights(text) {
+            quoteDisplay.innerHTML = '';
+            const words = text.split(' ').filter(w => w.trim() !== '');
+            
+            const maxHighlights = Math.min(3, words.length);
+            let indices = [];
+            
+            while(indices.length < maxHighlights) {
+                let randomIndex = Math.floor(Math.random() * words.length);
+                if(!indices.includes(randomIndex)) {
+                    indices.push(randomIndex);
+                }
+            }
+
+            words.forEach((word, index) => {
+                const wordSpan = document.createElement('span');
+                wordSpan.className = 'word';
+                wordSpan.innerText = word;
+
+                if (indices.includes(index)) { 
+                    const highlight = document.createElement('span');
+                    highlight.className = 'highlight-box';
+                    wordSpan.appendChild(highlight);
+                }
+
+                quoteDisplay.appendChild(wordSpan);
+            });
+        }
+
+        generateBtn.addEventListener('click', () => {
+            const text = inputQuote.value.trim() || "Tulis quote...";
+            authorDisplay.innerText = inputAuthor.value.trim() || "Anonim";
+            
+            renderQuoteWithHighlights(text);
+
+            formArea.style.display = "none";
+            resultContainer.style.display = "block";
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            const originalText = downloadBtn.innerHTML;
+            downloadBtn.innerHTML = "PROSES...";
+            downloadBtn.disabled = true;
+
+            html2canvas(paperCanvas, {
+                scale: 4, 
+                useCORS: true,
+                backgroundColor: null
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'quote-lummxd.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+                downloadBtn.innerHTML = originalText;
+                downloadBtn.disabled = false;
+            }).catch(err => {
+                console.error(err);
+                alert("Gagal mendownload gambar.");
+                downloadBtn.innerHTML = originalText;
+                downloadBtn.disabled = false;
+            });
+        });
+
+        resetBtn.addEventListener('click', () => {
+            resultContainer.style.display = "none";
+            formArea.style.display = "flex";
+        });
+    </script>
+
+</body>
+</html>
